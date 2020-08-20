@@ -9,3 +9,8 @@ Created on Wed Aug 19 20:31:11 2020
 #this is a test script
 
 print("hello world")
+
+x = 10
+
+if i < x:
+    print("i am peter")
