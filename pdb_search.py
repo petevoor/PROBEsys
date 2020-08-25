@@ -34,17 +34,23 @@ Created on Thu Aug 20 11:46:21 2020
 </orgPdbQuery>
 """
 
-import xml #google  library documentation to see how to use
+# import xml #google  library documentation to see how to use
 
 # if Alison can't find better guidance on the xml queries, will need to do two 
 # separate ID pulls, then have a matching function see which IDs are in both
 
-#below is an example of how to submit search queries with python
-'''
-import urllib2
+import urllib
+import urllib.request
 
 
 url = 'http://www.rcsb.org/pdb/rest/search'
+
+'''
+with open('query.xml') as Q:
+  x = Q.read()
+
+queryText = x
+'''
 
 queryText = """
 
@@ -54,33 +60,38 @@ queryText = """
 
 <version>B0907</version>
 
-<queryType>org.pdb.query.simple.ExpTypeQuery</queryType>
+<queryType>org.pdb.query.simple.SequenceLengthQuery</queryType>
 
-<description>Experimental Method Search: Experimental Method=SOLID-STATE NMR</description>
+<description>Sequence Length Search : Min Sequence Length=1 Max Sequence Length=12</description>
 
-<mvStructure.expMethod.value>SOLID-STATE NMR</mvStructure.expMethod.value>
+<v_sequence.chainLength.min>1</v_sequence.chainLength.min>
+
+<v_sequence.chainLength.max>12</v_sequence.chainLength.max>
 
 </orgPdbQuery>
 
 """
 
+queryText= queryText.encode('ascii')
 
-print "query:\n", queryText
+print ("QUERY:\n", queryText)
 
-print "querying PDB...\n"
+print ("QUERYING PDB...\n")
 
-req = urllib2.Request(url, data=queryText)
+req = urllib.request.Request(url, data=queryText)
 
-f = urllib2.urlopen(req)
+f = urllib.request.urlopen(req)
 
 result = f.read()
 
+result = str(result)
 
+result = result.replace("\\n", " ")
+  
 if result:
-
-    print "Found number of PDB entries:", result.count('\n')
-
+    with open("./chainnumber.txt", "a") as myfile:
+       myfile.write(result)
+       myfile.close()
+    
 else:
-
-    print "Failed to retrieve results"
-'''
+    print ("Failed to retrieve results")
