@@ -11,15 +11,23 @@ import urllib.request
 
 
 
-IDs = ['4A0T','1OX9']
+IDs = []
 
+#open pdb search output file and add each PDB ID to the list "IDs"
+with open("pdbsearch_output.txt") as IDinput:
+    f = IDinput.read()
+    f = f.replace(" ","\n")
+    f = f.replace("b'","")
+    f = f.replace("'","")
+
+    IDs = f.splitlines()
+
+#fetch function fetches data for a single pdb ID and stores it in a .txt file
 def fetch(ID):
     url1 = 'http://www.rcsb.org/pdb/rest/customReport.csv?pdbids='
     url2 = '&customReportColumns=structureId,chainId,entityId,pubmedId,chainLength,Ka,Kd,source,sequence&service=wsdisplay&format=csv'
     
     url = url1 + ID + url2
-    
-    print ("FETCHING FROM PDB...\n")
     
     req = urllib.request.Request(url)
 
@@ -30,9 +38,12 @@ def fetch(ID):
     result = str(result)
   
     if result:
-        with open("./pdbfetch_output_{}.txt".format(str(ID)), "a") as myfile:
+        with open("./fetch_outputs/pdbfetch_output_{}.txt".format(str(ID)), "a") as myfile:
             myfile.write(result)
             myfile.close()
+            
+print ("FETCHING FROM PDB...\n")
 
+#performs fetch function on each PDB ID from the PDB search output
 for i in IDs:
     fetch(i)
