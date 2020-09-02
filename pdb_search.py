@@ -6,8 +6,21 @@ Created on Thu Aug 20 11:46:21 2020
 @author: peter
 """
 
-#below is the xml code for a PDB query for structures with >1 chain
-"""
+import urllib
+import urllib.request
+
+
+url = 'http://www.rcsb.org/pdb/rest/search'
+
+#this query searches for pdb files with >1 chain and at least 1 chain with <12 residues
+queryText = """
+
+<orgPdbCompositeQuery>
+
+<queryRefinement>
+
+<queryRefinementLevel>0</queryRefinementLevel>
+
 <orgPdbQuery>
 
 <queryType>org.pdb.query.simple.NumberOfChainsQuery</queryType>
@@ -16,11 +29,16 @@ Created on Thu Aug 20 11:46:21 2020
 
 <struct_asym.numChains.min>2</struct_asym.numChains.min>
 
-</orgPdbQuery>
-"""
+</orgPdbQuery> 
 
-#below is the xml code for a PDB query for chains
-"""
+</queryRefinement>
+
+<queryRefinement>
+
+<queryRefinementLevel>1</queryRefinementLevel>
+
+<conjunctionType>and</conjunctionType>
+
 <orgPdbQuery>
 
 <queryType>org.pdb.query.simple.SequenceLengthQuery</queryType>
@@ -32,51 +50,18 @@ Created on Thu Aug 20 11:46:21 2020
 <v_sequence.chainLength.max>12</v_sequence.chainLength.max>
 
 </orgPdbQuery>
-"""
 
-# import xml #google  library documentation to see how to use
+</queryRefinement>
 
-# if Alison can't find better guidance on the xml queries, will need to do two 
-# separate ID pulls, then have a matching function see which IDs are in both
-
-import urllib
-import urllib.request
-
-
-url = 'http://www.rcsb.org/pdb/rest/search'
-
-'''
-with open('query.xml') as Q:
-  x = Q.read()
-
-queryText = x
-'''
-
-queryText = """
-
-<?xml version="1.0" encoding="UTF-8"?>
-
-<orgPdbQuery>
-
-<version>B0907</version>
-
-<queryType>org.pdb.query.simple.SequenceLengthQuery</queryType>
-
-<description>Sequence Length Search : Min Sequence Length=1 Max Sequence Length=12</description>
-
-<v_sequence.chainLength.min>1</v_sequence.chainLength.min>
-
-<v_sequence.chainLength.max>12</v_sequence.chainLength.max>
-
-</orgPdbQuery>
+</orgPdbCompositeQuery>
 
 """
 
-queryText= queryText.encode('ascii')
-
-print ("QUERY:\n", queryText)
+print ("\nQUERY:\n", queryText, "\n")
 
 print ("QUERYING PDB...\n")
+
+queryText= queryText.encode('ascii')
 
 req = urllib.request.Request(url, data=queryText)
 
@@ -86,10 +71,13 @@ result = f.read()
 
 result = str(result)
 
+hits = result.count('n')
+
 result = result.replace("\\n", " ")
   
 if result:
-    with open("./chainnumber.txt", "a") as myfile:
+    print ("Found number of PDB entries: ", str(hits))
+    with open("./pdbsearch_output.txt", "a") as myfile:
        myfile.write(result)
        myfile.close()
     
